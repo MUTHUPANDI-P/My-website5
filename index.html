@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Operations Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 50px;
+            background-image: url('/public/image.jpg'); /* Path updated to load from 'public' folder */
+            background-size: cover;
+            background-position: center;
+            color: #333;
+        }
+        h1 {
+            color: #FF5722;
+            animation: fadeIn 2s ease-in-out;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .input-container {
+            margin: 10px;
+        }
+        input[type="text"], input[type="file"] {
+            width: 300px;
+            padding: 12px;
+            margin: 5px 0;
+            font-size: 16px;
+            border: 2px solid #FF9800;
+            border-radius: 8px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        input[type="text"]:focus {
+            border-color: #FF5722;
+            box-shadow: 0 0 5px rgba(255, 87, 34, 0.5);
+            outline: none;
+        }
+        button {
+            margin: 10px;
+            padding: 12px 25px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #3F51B5;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #303F9F;
+            transform: scale(1.05);
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            max-width: 600px;
+            background: rgba(224, 224, 224, 0.9);
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            white-space: pre-wrap;
+            font-size: 14px;
+            color: #333;
+            display: none; /* Hide the output initially */
+        }
+        #output.show {
+            display: block; /* Show output when there's content */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>File Operations Web Application</h1>
+    
+    <div class="input-container">
+        <input type="text" id="fileName" placeholder="Enter file name (e.g., example.txt)" required />
+    </div>
+    <div class="input-container">
+        <input type="text" id="content" placeholder="Enter content for file operations" />
+    </div>
+
+    <button onclick="writeFile()">Write to File</button>
+    <button onclick="readFile()">Read from File</button>
+    <button onclick="appendFile()">Append to File</button>
+    <button onclick="deleteFile()">Delete File</button>
+    <button onclick="renameFile()">Rename File</button>
+    
+    <div id="output"></div>
+
+    <script>
+        async function showMessage(message) {
+            const output = document.getElementById('output');
+            output.innerText = message;
+            output.classList.add('show'); // Show the output box
+        }
+
+        async function writeFile() {
+            const fileName = document.getElementById('fileName').value;
+            const content = document.getElementById('content').value;
+            const response = await fetch('/write', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileName, content })
+            });
+            const message = await response.text();
+            showMessage(message);
+        }
+
+        async function readFile() {
+            const fileName = document.getElementById('fileName').value;
+            const response = await fetch(`/read?fileName=${fileName}`);
+            const content = await response.text();
+            showMessage(content);
+        }
+
+        async function appendFile() {
+            const fileName = document.getElementById('fileName').value;
+            const content = document.getElementById('content').value;
+            const response = await fetch('/append', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileName, content })
+            });
+            const message = await response.text();
+            showMessage(message);
+        }
+
+        async function deleteFile() {
+            const fileName = document.getElementById('fileName').value;
+            const response = await fetch('/delete', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileName })
+            });
+            const message = await response.text();
+            showMessage(message);
+            document.getElementById('fileName').value = '';
+            document.getElementById('content').value = '';
+        }
+
+        async function renameFile() {
+            const fileName = document.getElementById('fileName').value;
+            const newFileName = prompt("Enter new file name:");
+            if (newFileName) {
+                const response = await fetch('/rename', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileName, newFileName })
+                });
+                const message = await response.text();
+                showMessage(message);
+                document.getElementById('fileName').value = newFileName;
+            }
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
+
